@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+package book;
+
+option java_package = "com.elsevier.book";
+option go_package = "bookpb";
+
+message BookMessage {
+  int32 id = 1;
+  string title = 2;
+  string author = 3;
+  repeated string tags = 4;
+}
