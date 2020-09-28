@@ -28,20 +28,21 @@ func main() {
 	client = calculatorpb.NewCalculatorServiceClient(connection)
 
 	calculateSum(10, 20)
-	decomposePrimeFactor(21576857400)
+	decomposePrimeFactor(7192285800)
+	calculateSumEvenNumber([]int32{2, 3, 4, 9, 10, 18, 23, 30})
 }
 
 func calculateSum(firstNumber int32, secondNumber int32) {
-	req := &calculatorpb.SumRequest{
+	req := &calculatorpb.CalculateSumRequest{
 		FirstNumber:  firstNumber,
 		SecondNumber: secondNumber,
 	}
 
-	res, err := client.Sum(context.Background(), req)
+	res, err := client.CalculateSum(context.Background(), req)
 	if err != nil {
-		log.Fatalf("Error while calling Sum: %v", err)
+		log.Fatalf("Error while calling CalculateSum: %v", err)
 	}
-	log.Printf("Response from Sum: %v", res.SumResult)
+	log.Printf("Response from CalculateSum: %v", res.GetSum())
 }
 
 func decomposePrimeFactor(number int64) {
@@ -51,16 +52,36 @@ func decomposePrimeFactor(number int64) {
 		log.Fatalf("Error while calling DecomposePrimeFactor: %v", err)
 	}
 
-	log.Print("Response from DecomposePrimeFactor:")
+	result := ""
 	for {
 		res, err := stream.Recv()
 		if err == io.EOF {
 			break
 		}
 		if err != nil {
-			log.Fatalf("Something happened: %v", err)
+			log.Fatalf("Error while receiving response: %v", err)
 		}
-		fmt.Printf("%d ", res.GetPrimeFactor())
+		result += fmt.Sprintf("%d ", res.GetPrimeFactor())
 	}
-	fmt.Println()
+	log.Printf("Response from DecomposePrimeFactor: %s", result)
+}
+
+func calculateSumEvenNumber(numbers []int32) {
+	stream, err := client.CalculateSumEvenNumber(context.Background())
+	if err != nil {
+		log.Fatalf("Error while opening stream CalculateSumEvenNumber: %v", err)
+	}
+
+	for _, number := range numbers {
+		err = stream.Send(&calculatorpb.CalculateSumEvenNumberRequest{Number: number})
+		if err != nil {
+			log.Fatalf("Error while sending request: %v", err)
+		}
+	}
+
+	res, err := stream.CloseAndRecv()
+	if err != nil {
+		log.Fatalf("Error while receiving response: %v", err)
+	}
+	log.Printf("Response from CalculateSumEvenNumberRequest: %d", res.GetSum())
 }

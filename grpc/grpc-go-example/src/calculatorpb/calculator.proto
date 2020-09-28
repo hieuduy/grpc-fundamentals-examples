@@ -3,13 +3,13 @@ syntax = "proto3";
 package calculator;
 option go_package = "src/calculatorpb";
 
-message SumRequest {
+message CalculateSumRequest {
   int32 first_number = 1;
   int32 second_number = 2;
 }
 
-message SumResponse {
-  int32 sum_result = 1;
+message CalculateSumResponse {
+  int32 sum = 1;
 }
 
 message DecomposePrimeFactorRequest {
@@ -20,10 +20,21 @@ message DecomposePrimeFactorResponse {
   int64 prime_factor = 1;
 }
 
+message CalculateSumEvenNumberRequest {
+  int32 number = 1;
+}
+
+message CalculateSumEvenNumberResponse {
+  int32 sum = 1;
+}
+
 service CalculatorService {
   // Unary
-  rpc Sum(SumRequest) returns (SumResponse) {};
+  rpc CalculateSum(CalculateSumRequest) returns (CalculateSumResponse) {};
 
   // Server Streaming
   rpc DecomposePrimeFactor(DecomposePrimeFactorRequest) returns (stream DecomposePrimeFactorResponse) {};
+
+  // Client Streaming
+  rpc CalculateSumEvenNumber(stream CalculateSumEvenNumberRequest) returns (CalculateSumEvenNumberResponse) {};
 }

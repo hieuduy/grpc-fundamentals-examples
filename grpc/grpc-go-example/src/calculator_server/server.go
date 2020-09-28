@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"google.golang.org/grpc"
 	"grpc-go-example/src/calculatorpb"
+	"io"
 	"log"
 	"net"
 )
@@ -30,9 +31,12 @@ func main() {
 	}
 }
 
-func (s *server) Sum(ctx context.Context, req *calculatorpb.SumRequest) (*calculatorpb.SumResponse, error) {
+func (s *server) CalculateSum(
+	ctx context.Context,
+	req *calculatorpb.CalculateSumRequest,
+) (*calculatorpb.CalculateSumResponse, error) {
 	sum := req.FirstNumber + req.SecondNumber
-	res := &calculatorpb.SumResponse{SumResult: sum}
+	res := &calculatorpb.CalculateSumResponse{Sum: sum}
 	return res, nil
 }
 
@@ -44,9 +48,8 @@ func (s *server) DecomposePrimeFactor(
 	divisor := int64(2)
 	for number > 1 {
 		if number%divisor == 0 {
-			if err := stream.Send(&calculatorpb.DecomposePrimeFactorResponse{
-				PrimeFactor: divisor,
-			}); err != nil {
+			err := stream.Send(&calculatorpb.DecomposePrimeFactorResponse{PrimeFactor: divisor})
+			if err != nil {
 				return err
 			}
 			number = number / divisor
@@ -55,4 +58,22 @@ func (s *server) DecomposePrimeFactor(
 		}
 	}
 	return nil
+}
+
+func (s *server) CalculateSumEvenNumber(stream calculatorpb.CalculatorService_CalculateSumEvenNumberServer) error {
+	sum := int32(0)
+	for {
+		req, err := stream.Recv()
+		if err == io.EOF {
+			return stream.SendAndClose(&calculatorpb.CalculateSumEvenNumberResponse{Sum: sum})
+		}
+		if err != nil {
+			log.Fatalf("Error while reading client stream: %v", err)
+		}
+
+		number := req.GetNumber()
+		if number%2 == 0 {
+			sum += number
+		}
+	}
 }
