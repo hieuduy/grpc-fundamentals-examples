@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"google.golang.org/grpc"
 	"grpc-go-example/src/calculatorpb"
+	"io"
 	"log"
 )
 
@@ -27,6 +28,7 @@ func main() {
 	client = calculatorpb.NewCalculatorServiceClient(connection)
 
 	calculateSum(10, 20)
+	decomposePrimeFactor(21576857400)
 }
 
 func calculateSum(firstNumber int32, secondNumber int32) {
@@ -40,4 +42,25 @@ func calculateSum(firstNumber int32, secondNumber int32) {
 		log.Fatalf("Error while calling Sum: %v", err)
 	}
 	log.Printf("Response from Sum: %v", res.SumResult)
+}
+
+func decomposePrimeFactor(number int64) {
+	req := &calculatorpb.DecomposePrimeFactorRequest{Number: number}
+	stream, err := client.DecomposePrimeFactor(context.Background(), req)
+	if err != nil {
+		log.Fatalf("Error while calling DecomposePrimeFactor: %v", err)
+	}
+
+	log.Print("Response from DecomposePrimeFactor:")
+	for {
+		res, err := stream.Recv()
+		if err == io.EOF {
+			break
+		}
+		if err != nil {
+			log.Fatalf("Something happened: %v", err)
+		}
+		fmt.Printf("%d ", res.GetPrimeFactor())
+	}
+	fmt.Println()
 }
