@@ -9,6 +9,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 
 public class Main {
+  private static final String FILE_NAME = "book_message.bin";
+
   public static void main(String[] args) throws InvalidProtocolBufferException {
     BookMessage.Builder builder = BookMessage.newBuilder();
     BookMessage bookMessage =
@@ -21,10 +23,8 @@ public class Main {
             .build();
     System.out.println(bookMessage);
 
-    String fileName = "book_message.bin";
-    writeToFile(bookMessage, fileName);
-
-    BookMessage bookMessageFromFile = readFromFile(fileName);
+    writeToFile(bookMessage, FILE_NAME);
+    BookMessage bookMessageFromFile = readFromFile(FILE_NAME);
     System.out.println(bookMessageFromFile);
 
     String jsonString = toJsonString(bookMessage);
