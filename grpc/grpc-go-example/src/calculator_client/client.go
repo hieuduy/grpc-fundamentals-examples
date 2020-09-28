@@ -7,6 +7,7 @@ import (
 	"grpc-go-example/src/calculatorpb"
 	"io"
 	"log"
+	"time"
 )
 
 const (
@@ -30,6 +31,7 @@ func main() {
 	calculateSum(10, 20)
 	decomposePrimeFactor(7192285800)
 	calculateSumEvenNumber([]int32{2, 3, 4, 9, 10, 18, 23, 30})
+	findMaxNumber([]int32{4, 8, 2, 20, 12, 6, 32})
 }
 
 func calculateSum(firstNumber int32, secondNumber int32) {
@@ -42,7 +44,7 @@ func calculateSum(firstNumber int32, secondNumber int32) {
 	if err != nil {
 		log.Fatalf("Error while calling CalculateSum: %v", err)
 	}
-	log.Printf("Response from CalculateSum: %v", res.GetSum())
+	log.Printf("Response from CalculateSum: %d", res.GetSum())
 }
 
 func decomposePrimeFactor(number int64) {
@@ -84,4 +86,46 @@ func calculateSumEvenNumber(numbers []int32) {
 		log.Fatalf("Error while receiving response: %v", err)
 	}
 	log.Printf("Response from CalculateSumEvenNumberRequest: %d", res.GetSum())
+}
+
+func findMaxNumber(numbers []int32) {
+	stream, err := client.FindMaxNumber(context.Background())
+	if err != nil {
+		log.Fatalf("Error while opening stream FindMaxNumber: %v", err)
+	}
+
+	wait := make(chan struct{})
+
+	// Send go routine
+	go func() {
+		for _, number := range numbers {
+			err := stream.Send(&calculatorpb.FindMaxNumberRequest{Number: number})
+			if err != nil {
+				log.Fatalf("Error while sending request: %v", err)
+			}
+			time.Sleep(100 * time.Millisecond)
+		}
+		err := stream.CloseSend()
+		if err != nil {
+			log.Fatalf("Error while closing stream FindMaxNumber: %v", err)
+		}
+	}()
+
+	// Receive go routine
+	go func() {
+		log.Println("Response from FindMaxNumber:")
+		for {
+			res, err := stream.Recv()
+			if err == io.EOF {
+				break
+			}
+			if err != nil {
+				log.Fatalf("Problem while reading server stream: %v", err)
+			}
+			log.Printf("New max number: %d", res.GetMaxNumber())
+		}
+		close(wait)
+	}()
+
+	<-wait
 }

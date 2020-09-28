@@ -77,3 +77,27 @@ func (s *server) CalculateSumEvenNumber(stream calculatorpb.CalculatorService_Ca
 		}
 	}
 }
+
+func (s *server) FindMaxNumber(stream calculatorpb.CalculatorService_FindMaxNumberServer) error {
+	max := int32(0)
+	for {
+		req, err := stream.Recv()
+		if err == io.EOF {
+			return nil
+		}
+		if err != nil {
+			log.Fatalf("Error while reading client stream: %v", err)
+			return err
+		}
+
+		number := req.GetNumber()
+		if number > max {
+			max = number
+			sendErr := stream.Send(&calculatorpb.FindMaxNumberResponse{MaxNumber: max})
+			if sendErr != nil {
+				log.Fatalf("Error while sending data to client: %v", sendErr)
+				return sendErr
+			}
+		}
+	}
+}

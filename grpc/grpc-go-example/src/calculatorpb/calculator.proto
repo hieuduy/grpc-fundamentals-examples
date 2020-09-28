@@ -28,6 +28,14 @@ message CalculateSumEvenNumberResponse {
   int32 sum = 1;
 }
 
+message FindMaxNumberRequest {
+  int32 number = 1;
+}
+
+message FindMaxNumberResponse {
+  int32 max_number = 1;
+}
+
 service CalculatorService {
   // Unary
   rpc CalculateSum(CalculateSumRequest) returns (CalculateSumResponse) {};
@@ -37,4 +45,7 @@ service CalculatorService {
 
   // Client Streaming
   rpc CalculateSumEvenNumber(stream CalculateSumEvenNumberRequest) returns (CalculateSumEvenNumberResponse) {};
+
+  // Bi-directional Streaming
+  rpc FindMaxNumber(stream FindMaxNumberRequest) returns (stream FindMaxNumberResponse) {};
 }
