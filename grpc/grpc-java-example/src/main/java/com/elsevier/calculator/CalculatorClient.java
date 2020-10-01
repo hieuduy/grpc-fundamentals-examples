@@ -49,12 +49,10 @@ public class CalculatorClient {
     CalculatorServiceGrpc.CalculatorServiceBlockingStub stub =
         CalculatorServiceGrpc.newBlockingStub(channel);
 
-    StringBuilder result = new StringBuilder();
+    System.out.println("Response from DecomposePrimeFactor:");
     stub.decomposePrimeFactor(
             Calculator.DecomposePrimeFactorRequest.newBuilder().setNumber(number).build())
-        .forEachRemaining(response -> result.append(response.getPrimeFactor()).append(" "));
-
-    System.out.println("Response from DecomposePrimeFactor: " + result.toString());
+        .forEachRemaining(response -> System.out.println(response.getPrimeFactor()));
   }
 
   private void calculateSumEvenNumber(List<Integer> numbers) {

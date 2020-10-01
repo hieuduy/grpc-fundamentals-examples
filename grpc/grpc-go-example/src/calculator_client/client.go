@@ -54,7 +54,7 @@ func decomposePrimeFactor(number int64) {
 		log.Fatalf("Error while calling DecomposePrimeFactor: %v", err)
 	}
 
-	result := ""
+	log.Println("Response from DecomposePrimeFactor:")
 	for {
 		res, err := stream.Recv()
 		if err == io.EOF {
@@ -63,9 +63,8 @@ func decomposePrimeFactor(number int64) {
 		if err != nil {
 			log.Fatalf("Error while receiving response: %v", err)
 		}
-		result += fmt.Sprintf("%d ", res.GetPrimeFactor())
+		log.Print(res.GetPrimeFactor())
 	}
-	log.Printf("Response from DecomposePrimeFactor: %s", result)
 }
 
 func calculateSumEvenNumber(numbers []int32) {
