@@ -1,0 +1,24 @@
+syntax = "proto3";
+
+package calculator;
+option go_package = "src/calculatorpb";
+
+import "google/api/annotations.proto";
+
+message CalculateSumRequest {
+  int32 first_number = 1;
+  int32 second_number = 2;
+}
+
+message CalculateSumResponse {
+  int32 sum = 1;
+}
+
+service CalculatorService {
+  rpc CalculateSum(CalculateSumRequest) returns (CalculateSumResponse) {
+    option (google.api.http) = {
+      post: "/api/calculator/sum",
+      body: "*"
+    };
+  };
+}
