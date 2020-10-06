@@ -11,7 +11,6 @@ repositories {
 
 dependencies {
     implementation group: 'com.google.protobuf', name: 'protobuf-java', version: '3.13.0'
-    implementation group: 'com.google.protobuf', name: 'protobuf-java-util', version: '3.13.0'
     testImplementation group: 'junit', name: 'junit', version: '4.12'
 }
 
